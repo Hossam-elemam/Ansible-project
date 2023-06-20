@@ -1,0 +1,43 @@
+--- 
+- name: reload service firewalld
+  systemd:
+    name: firewalld
+    state: reloaded
+[hossam@station handlers]$ cd ..
+[hossam@station apache]$ cd tasks/
+[hossam@station tasks]$ cat main.yml 
+ - name: install httpd
+   yum:
+     name: httpd
+     state: installed
+ - name: start and enable httpd
+   systemd:
+     name: httpd
+     state: started
+     enabled: yes
+ - name: Install MYSQL DB Community edition
+   yum:
+     name:
+      - mysql-server
+     state: latest
+ - name: Start the MYSQL service
+   service:
+     name: mysqld
+     enabled: yes
+     state: started
+ - name: Installing PHP
+   yum:
+     name:
+       - php
+     state: latest
+ - name: permit traffic in default zone for https service
+   firewalld:
+     port: "{{ http_port }}"
+     permanent: yes
+     state: enabled
+   notify:
+     - reload service firewalld
+ - name: template render
+   template:
+     src: index.php.j2
+     dest: "{{ php_page_dest }}"
